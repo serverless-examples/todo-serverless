@@ -1,0 +1,8 @@
+{
+  "name": "todo-aws-functions",
+  "dependencies": {
+    "dotenv": "^2.0.0",
+    "graphql": "^0.7.2",
+    "uuid": "^2.0.3"
+  }
+}

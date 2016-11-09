@@ -1,0 +1,76 @@
+service: todo-aws
+provider:
+  name: aws
+  runtime: nodejs4.3
+
+custom:
+  packageEnv:
+    fileName: .env-${opt:stage}
+
+plugins:
+  - serverless-plugin-package-dotenv-file
+  - serverless-offline
+  - serverless-run-function-plugin
+
+package:
+  exclude:
+    - coverage/**
+    - node_modules/**
+    - src/package.json
+    - test/**
+    - .editorconfig
+    - .env-*
+    - .envrc
+    - .eslint*
+    - .gitignore
+    - .node-version
+    - .travis.yml
+    - deploy.sh
+    - install.sh
+    - package.json
+    - README.md
+
+functions:
+  graphql:
+    handler: src/index.graphql
+    memorySize: 128
+    timeout: 3
+    events:
+        - http:
+            path: graphql
+            method: post
+
+# resources:
+#   Resources:
+#     TodoListTable:
+#       Type: AWS::DynamoDB::Table
+#       DeletionPolicy: Retain
+#       Properties:
+#         TableName: todo-list-${opt:stage}
+#         AttributeDefinitions:
+#           -
+#             AttributeName: Id
+#             AttributeType: S
+#           -
+#             AttributeName: Completed
+#             AttributeType: N
+#         KeySchema:
+#           -
+#             AttributeName: Id
+#             KeyType: HASH
+#         GlobalSecondaryIndexes:
+#           - IndexName: ActiveIndex
+#             KeySchema:
+#               -
+#                 AttributeName: Completed
+#                 KeyType: HASH
+#             Projection:
+#               ProjectionType: ALL
+#             ProvisionedThroughput:
+#               ReadCapacityUnits: 1
+#               WriteCapacityUnits: 1
+
+#         ProvisionedThroughput:
+#           ReadCapacityUnits: 1
+#           WriteCapacityUnits: 1
+  # Outputs:
