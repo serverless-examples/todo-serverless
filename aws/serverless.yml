@@ -2,13 +2,28 @@ service: todo-aws
 provider:
   name: aws
   runtime: nodejs4.3
+  cfLogs: true
+  iamRoleStatements:
+      -  Effect: Allow
+         Action:
+          - dynamodb:DescribeTable
+          - dynamodb:Query
+          - dynamodb:Scan
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+          - dynamodb:DeleteItem
+         Resource:
+           - arn:aws:dynamodb:${opt:region}:*:table/${self:custom.todoTableName}
+           - arn:aws:dynamodb:${opt:region}:*:table/${self:custom.todoTableName}/*
 
 custom:
-  packageEnv:
-    fileName: .env-${opt:stage}
+  todoTableName: todo-list-${opt:stage}
+  writeEnvVars:
+    TODO_TABLE_NAME: ${self:custom.todoTableName}
 
 plugins:
-  - serverless-plugin-package-dotenv-file
+  - serverless-plugin-write-env-vars
   - serverless-offline
   - serverless-run-function-plugin
 
@@ -34,43 +49,43 @@ functions:
   graphql:
     handler: src/index.graphql
     memorySize: 128
-    timeout: 3
+    timeout: 12
     events:
         - http:
             path: graphql
             method: post
 
-# resources:
-#   Resources:
-#     TodoListTable:
-#       Type: AWS::DynamoDB::Table
-#       DeletionPolicy: Retain
-#       Properties:
-#         TableName: todo-list-${opt:stage}
-#         AttributeDefinitions:
-#           -
-#             AttributeName: Id
-#             AttributeType: S
-#           -
-#             AttributeName: Completed
-#             AttributeType: N
-#         KeySchema:
-#           -
-#             AttributeName: Id
-#             KeyType: HASH
-#         GlobalSecondaryIndexes:
-#           - IndexName: ActiveIndex
-#             KeySchema:
-#               -
-#                 AttributeName: Completed
-#                 KeyType: HASH
-#             Projection:
-#               ProjectionType: ALL
-#             ProvisionedThroughput:
-#               ReadCapacityUnits: 1
-#               WriteCapacityUnits: 1
+resources:
+  Resources:
+    TodoListTable:
+      Type: AWS::DynamoDB::Table
+      # DeletionPolicy: Retain - normally you'd want this'
+      Properties:
+        TableName: ${self:custom.todoTableName}
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+          -
+            AttributeName: completed
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: CompletedIndex
+            KeySchema:
+              -
+                AttributeName: completed
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
 
-#         ProvisionedThroughput:
-#           ReadCapacityUnits: 1
-#           WriteCapacityUnits: 1
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
   # Outputs:
