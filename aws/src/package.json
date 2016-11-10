@@ -1,8 +1,11 @@
 {
   "name": "todo-aws-functions",
   "dependencies": {
+    "bluebird": "^3.4.6",
     "dotenv": "^2.0.0",
+    "dynogels": "^6.1.0",
     "graphql": "^0.7.2",
+    "joi": "^9.2.0",
     "uuid": "^2.0.3"
   }
 }
