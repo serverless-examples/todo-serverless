@@ -21,5 +21,6 @@ module.exports = graphql.buildSchema(`
 
   type Mutation {
     addTodo(name: String!): todo!
+    setTodoCompleted(id: String!, completed: Boolean!): todo
   }
 `);

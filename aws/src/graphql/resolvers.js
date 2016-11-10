@@ -2,41 +2,59 @@
 
 const uuid = require('uuid')
 
-const data = [];
+const data = {};
+
+const includeItem = (completed, status) => {
+  switch(status) {
+    case 'ACTIVE':
+      return !completed;
+    case 'COMPLETED':
+      return completed;
+    case 'ANY':
+      return true;
+  }
+}
 
 const getTodos = (args) => {
   console.log('Getting todos: ', args);
-  const status = args.status;
 
-  if(status === 'ANY') {
-    return data;
-  }
+  const list = [];
+  Object.keys(data).forEach(key => {
+    const todo = data[key];
 
-  const completed = status === 'COMPLETED';
+    if(includeItem(todo.completed, args.status)) {
+      list.push(todo);
+    }
+  });
 
-  return data.filter(todo => todo.completed === completed);
+  return list;
 }
 
 const addTodo = (args) => {
+  console.log('Adding todo: ', args);
+  const id = uuid.v4();
   const todo = {
-    id: uuid.v4(),
+    id: id,
     name: args.name,
     completed: false
   };
-  data.push(todo);
+
+  data[id] = todo;
+
   return todo;
 }
 
 const setTodoCompleted = (args) => {
-  const id = args.id;
-  const completed = args.completed;
+  console.log('Setting todo completed: ', args);
 
-  const todo = {
-    id: uuid.v4(),
-    name: args.name,
-    completed: false
-  };
-  data.push(todo);
+  const id = args.id;
+
+  const todo = data[id];
+
+  if(todo) {
+    todo.completed = args.completed;
+  }
+
   return todo;
 }
 
